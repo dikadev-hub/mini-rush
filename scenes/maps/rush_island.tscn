@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://c4maprushisland"]
+
+[ext_resource type="Script" path="res://scripts/maps/rush_island_builder.gd" id="1_builder"]
+
+[node name="RushIsland" type="Node3D"]
+script = ExtResource("1_builder")

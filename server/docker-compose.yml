@@ -1,0 +1,19 @@
+services:
+  mini-rush-server:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "${MINI_RUSH_PORT:-7777}:7777/udp"
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs
+    command:
+      - --headless
+      - --
+      - --server
+      - --port=${MINI_RUSH_PORT:-7777}
+      - --max-rooms=${MINI_RUSH_MAX_ROOMS:-50}
+      - --max-players=${MINI_RUSH_MAX_PLAYERS_PER_ROOM:-8}
+      - --log-level=${MINI_RUSH_LOG_LEVEL:-info}
+      - --match-timeout=${MINI_RUSH_MATCH_TIMEOUT_SEC:-600}
