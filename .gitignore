@@ -1,2 +1,2 @@
-GDScript
-.godot/
+build/
+*.apk
