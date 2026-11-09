@@ -1,0 +1,25 @@
+Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
+
+WARNING: SettingsManager: bus audio tidak ditemukan: Music
+     at: push_warning (core/variant/variant_utility.cpp:1112)
+WARNING: SettingsManager: bus audio tidak ditemukan: SFX
+     at: push_warning (core/variant/variant_utility.cpp:1112)
+[2026-11-09 15:33:41.608] [info] argumen CLI: port=7777 max_rooms=50 max_players=8 log_level=info match_timeout=600
+[2026-11-09 15:33:41.626] [info] server ENet aktif di UDP 7777 (max_clients=400)
+[2026-11-09 15:33:41.626] [info] ServerMain siap: port=7777 max_rooms=50 max_players=8 max_clients=400 timeout=600s
+[2026-11-09 15:33:47.564] [info] room 43XNN5 dibuat oleh peer 1648446430 (nickname='Tester1')
+[2026-11-09 15:33:51.692] [info] health: rooms=1 players=1 uptime=10s
+[2026-11-09 15:33:57.025] [info] peer 2083917513 join room 43XNN5 (nickname='Tester2')
+[2026-11-09 15:34:01.691] [info] health: rooms=1 players=2 uptime=20s
+[2026-11-09 15:34:03.174] [info] room 43XNN5: race dimulai (timeout 600s)
+[2026-11-09 15:34:03.175] [info] room 43XNN5: rpc_match_started dikirim ke 2 peer
+[2026-11-09 15:34:11.711] [info] health: rooms=1 players=2 uptime=30s
+[2026-11-09 15:34:21.711] [info] health: rooms=1 players=2 uptime=40s
+[2026-11-09 15:34:31.711] [info] health: rooms=1 players=2 uptime=50s
+[2026-11-09 15:34:41.699] [info] health: rooms=1 players=2 uptime=60s
+[2026-11-09 15:34:51.703] [info] health: rooms=1 players=2 uptime=70s
+[2026-11-09 15:35:01.723] [info] health: rooms=1 players=2 uptime=80s
+[2026-11-09 15:35:11.720] [info] health: rooms=1 players=2 uptime=90s
+[2026-11-09 15:35:21.725] [info] health: rooms=1 players=2 uptime=100s
+[2026-11-09 15:35:31.729] [info] health: rooms=1 players=2 uptime=110s
+[2026-11-09 15:35:41.729] [info] health: rooms=1 players=2 uptime=120s

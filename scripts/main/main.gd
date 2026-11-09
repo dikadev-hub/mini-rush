@@ -1,5 +1,14 @@
-# scripts/main/main.gd
-# Entry point scene utama. Owner: A1.
-# Minimal: node root kosong. Logika routing (client ke menu, server ke ServerMain)
-# ditambahkan oleh agent pemilik (A6/A7/A8) via SceneRouter / GameConfig.
+# scripts/main/main.gd — Entry point. Routing gelombang 3:
+# server -> ServerMain (autoload) menangani sendiri; client -> menu,
+# atau mode --auto-test (test multiplayer lokal, gelombang 3).
 extends Node
+
+func _ready() -> void:
+	var args: PackedStringArray = OS.get_cmdline_user_args()
+	for arg in args:
+		if arg.begins_with("--auto-test"):
+			var tester: Node = load("res://scripts/gameplay/auto_test.gd").new()
+			tester.name = "AutoTest"
+			add_child(tester)
+			return
+	SceneRouter.goto_scene("res://scenes/ui/main_menu.tscn")

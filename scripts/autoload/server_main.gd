@@ -36,9 +36,48 @@ func _ready() -> void:
 	match_manager = MatchManager.new(room_manager, match_timeout_sec)
 	get_tree().auto_accept_quit = false
 	get_tree().set_auto_accept_quit(false)
+	_wire_net_events()
 	_start_enet_server()
 	Log.info("ServerMain siap: port=%d max_rooms=%d max_players=%d max_clients=%d timeout=%.0fs" % [
 		_gc().get("server_port"), max_rooms, max_players, _max_clients(), match_timeout_sec])
+
+
+## Wire NetManager event ke handler (kontrak 4.5). Dipanggil di _ready.
+func _wire_net_events() -> void:
+	var nm: Node = get_node_or_null("/root/NetManager")
+	if nm == null:
+		Log.error("NetManager tidak ditemukan — RPC client tidak akan diproses")
+		return
+	nm.set("server_event_handler", _on_net_event)
+	nm.connect("server_state_submitted", _on_server_state_submitted)
+
+
+func _on_server_state_submitted(_peer_id: int, _state: Dictionary) -> void:
+	pass  # Validasi penuh ditangani lewat event "submit_state".
+
+
+func _on_net_event(event_name: String, sender_id: int, args: Array) -> void:
+	match event_name:
+		"create_room":
+			handle_request_create_room(sender_id, args[0], args[1], args[2])
+		"join_room":
+			handle_request_join_room(sender_id, args[0], args[1], args[2], args[3])
+		"leave_room":
+			handle_request_leave_room(sender_id)
+		"set_ready":
+			handle_set_ready(sender_id, args[0])
+		"start_match":
+			handle_request_start_match(sender_id)
+		"submit_state":
+			handle_submit_state(sender_id, args[0])
+		"report_checkpoint":
+			handle_report_checkpoint(sender_id, args[0])
+		"report_finish":
+			handle_report_finish(sender_id)
+		"health_request":
+			handle_server_health(sender_id)
+		_:
+			Log.warn("event NetManager tidak dikenal: %s" % event_name)
 
 
 func _parse_args() -> void:
@@ -164,7 +203,8 @@ func _send_room_snapshot(room: Room) -> void:
 
 func _send_match_started(room: Room) -> void:
 	var start_unix_ms: int = (Time.get_unix_time_from_system() - GameConfigScript.COUNTDOWN_SECONDS) * 1000
-	_net_call("rpc_match_started", [start_unix_ms])
+	for pid: int in room.players:
+		_net_call_to(pid, "rpc_match_started", [start_unix_ms])
 	Log.info("room %s: rpc_match_started dikirim ke %d peer" % [room.code, room.player_count()])
 
 
@@ -244,9 +284,11 @@ func handle_request_start_match(sender: int) -> void:
 func handle_submit_state(sender: int, state: Dictionary) -> void:
 	var room := room_manager.get_room_by_peer(sender)
 	if room == null or room.state != Protocol.RoomState.RUNNING:
+		print("[SERVERDBG] state ditolak: room=", room, " state_running=", (room != null and room.state == Protocol.RoomState.RUNNING))
 		return
 	var entry := room_manager.get_entry(sender)
 	if entry == null:
+		print("[SERVERDBG] entry null untuk ", sender)
 		return
 	var res := match_manager.process_state(room, entry, state, sender, Time.get_ticks_msec())
 	if res["kick"]:

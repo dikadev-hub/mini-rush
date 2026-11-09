@@ -45,6 +45,10 @@ var _remote_snapshots: Dictionary = {}
 var _remote_render_state: Dictionary = {}
 
 var _send_accumulator: float = 0.0
+var _debug_first_send: bool = OS.is_debug_build()
+var _first_send_logged: bool = false
+## State terakhir dalam bentuk dict siap kirim (diperbarui oleh set_local_state).
+var _last_state_dict: Dictionary = {}
 
 
 func _ready() -> void:
@@ -235,7 +239,7 @@ func rpc_match_started(race_start_server_ms: int) -> void:
 @rpc("any_peer", "unreliable_ordered")
 func rpc_submit_state(state: Dictionary) -> void:
 	if not multiplayer.is_server():
-		return
+		_server_handle_state(state)
 	# Validasi minim: pid harus sama dengan pengirim. Penerusan ke broadcast
 	# dilakukan server (A7). Di sini hanya diteruskan lewat sinyal internal.
 	_server_handle_state(state)
@@ -295,6 +299,7 @@ func set_local_state(pos: Vector3, rot_y: float, anim: StringName, on_floor: boo
 		"a": anim,
 		"g": on_floor,
 	}
+	_last_state_dict = _local_state
 
 
 func _physics_process(delta: float) -> void:
@@ -309,12 +314,15 @@ func _physics_process(delta: float) -> void:
 		return
 	var state: Dictionary = {
 		"pid": multiplayer.get_unique_id(),
-		"p": _local_state.get("p", Vector3.ZERO),
-		"r": _local_state.get("r", 0.0),
-		"a": _local_state.get("a", &"idle"),
-		"g": _local_state.get("g", false),
+		"p": _last_state_dict.get("p", Vector3.ZERO),
+		"r": _last_state_dict.get("r", 0.0),
+		"a": _last_state_dict.get("a", &"idle"),
+		"g": _last_state_dict.get("g", false),
 		"t": Time.get_ticks_msec(),
 	}
+	if _debug_first_send and not _first_send_logged:
+		_first_send_logged = true
+		print("[NetManager] state mulai dikirim (per 20 Hz)")
 	rpc_id(1, "rpc_submit_state", state)
 
 
