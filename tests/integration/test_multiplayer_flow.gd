@@ -26,8 +26,15 @@ func run(t) -> void:
 	var source: String = FileAccess.get_file_as_string("res://scripts/autoload/net_manager.gd")
 	for rpc_name in required_rpcs:
 		t.check(source.contains("func " + rpc_name), "NetManager punya " + rpc_name)
+	# Transport WebSocket: API ws harus tersedia di NetManager & GameConfig.
+	t.check(source.contains("func connect_to_server_ws"), "NetManager punya connect_to_server_ws")
+	t.check(source.contains("WebSocketMultiplayerPeer.new()"), "NetManager pakai WebSocketMultiplayerPeer")
+	var cfg_src: String = FileAccess.get_file_as_string("res://scripts/autoload/game_config.gd")
+	t.check(cfg_src.contains("--transport=ws"), "GameConfig parse flag --transport=ws")
+	var sm_src: String = FileAccess.get_file_as_string("res://scripts/autoload/server_main.gd")
+	t.check(sm_src.contains("_start_ws_server"), "ServerMain punya _start_ws_server")
 	# Full flow runtime test (spawn headless peers) ditangani oleh
-	# scripts/run_local_multiplayer.sh di gelombang 3.
+	# scripts/run_local_multiplayer.sh di gelombang 3 (TRANSPORT=ws untuk WebSocket).
 
 func _find_class(path: String) -> GDScript:
 	if not FileAccess.file_exists(path):

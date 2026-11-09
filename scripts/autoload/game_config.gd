@@ -13,10 +13,16 @@ const ROOM_EMPTY_TTL_SEC: float = 10.0
 const RECONNECT_WINDOW_SEC: float = 30.0
 const ROOM_CODE_LENGTH: int = 6
 const ROOM_CODE_ALPHABET: String = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"  # tanpa I, O, 0, 1
+const WS_DEFAULT_PORT: int = 3450
 
 var is_dedicated_server: bool = false
-var server_address: String = "127.0.0.1"
+## Default endpoint publik: domain menuju VPS 184.107.173.13 (TCP 3450 routable,
+## UDP diblokir provider -> default transport WebSocket).
+var server_address: String = "servergame.new.tg"
 var server_port: int = NET_PORT
+## Transport: "enet" (UDP) atau "ws" (WebSocket/TCP, default — untuk server publik
+## yang memblokir UDP inbound). Flag CLI: --transport=ws / --ws / --transport=enet.
+var transport: String = "ws"
 
 
 func _ready() -> void:
@@ -26,9 +32,16 @@ func _ready() -> void:
 	_parse_cli_args()
 
 
+## WS: listen TCP port (default 3450, endpoint publik ws://servergame.new.tg:3450).
 func _parse_cli_args() -> void:
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--port="):
 			server_port = int(arg.get_slice("=", 1))
 		elif arg.begins_with("--address="):
 			server_address = arg.get_slice("=", 1)
+		elif arg == "--transport=ws" or arg == "--ws":
+			transport = "ws"
+		elif arg == "--transport=enet":
+			transport = "enet"
+	if server_port == NET_PORT and transport == "ws" and not ("--port=" in OS.get_cmdline_user_args()):
+		server_port = WS_DEFAULT_PORT  # endpoint publik: ws://servergame.new.tg:3450

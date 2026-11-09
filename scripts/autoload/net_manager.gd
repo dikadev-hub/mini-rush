@@ -23,7 +23,12 @@ const SNAPSHOT_MAX_AGE_MS: int = 500
 const SNAPSHOT_HISTORY_SIZE: int = 2
 
 ## Peer client aktif (null saat offline / di server dedicated).
-var _peer: ENetMultiplayerPeer = null
+## Tipe dasar agar mendukung ENet (UDP) dan WebSocket (TCP) transport.
+var _peer: MultiplayerPeer = null
+
+## Mode transport koneksi client aktif: "enet" (UDP) atau "ws" (WebSocket/TCP).
+## Dipilih lewat connect_to_server() (enet) atau connect_to_server_ws().
+var transport_mode: String = "enet"
 
 ## Status koneksi client: "idle", "connecting", "connected".
 var connection_state: String = "idle"
@@ -73,13 +78,40 @@ func connect_to_server(address: String, port: int) -> void:
 		connection_failed.emit("Gagal membuat client (kode %d): %s" % [err, error_string(err)])
 		return
 	multiplayer.multiplayer_peer = _peer
+	transport_mode = "enet"
 	_connecting = true
 	connection_state = "connecting"
 	_connect_address = address
 	_connect_port = port
 	_connect_deadline_ms = Time.get_ticks_msec() + int(CONNECT_TIMEOUT_SEC * 1000.0)
 	connection_started.emit(address, port)
-	print("[NetManager] Menghubungi %s:%d ..." % [address, port])
+	print("[NetManager] Menghubungi %s:%d ... (transport: enet)" % [address, port])
+
+
+## Membuat WebSocketMultiplayerPeer client dan mulai koneksi ke server.
+## Untuk server publik yang memblokir UDP (ENet tidak bisa dipakai).
+## RPC decorator & skema identik dengan ENet karena multiplayer API sama.
+## URL format: ws://<host>:<port> (default dari address & port).
+## Timeout 8 detik; hasil lewat sinyal connection_succeeded / connection_failed.
+func connect_to_server_ws(address: String, port: int) -> void:
+	if _connecting or (connection_state == "connected"):
+		return
+	var url: String = "ws://%s:%d" % [address, port]
+	_peer = WebSocketMultiplayerPeer.new()
+	var err: Error = _peer.create_client(url)
+	if err != OK:
+		_peer = null
+		connection_failed.emit("Gagal membuat client WebSocket (kode %d): %s" % [err, error_string(err)])
+		return
+	multiplayer.multiplayer_peer = _peer
+	transport_mode = "ws"
+	_connecting = true
+	connection_state = "connecting"
+	_connect_address = address
+	_connect_port = port
+	_connect_deadline_ms = Time.get_ticks_msec() + int(CONNECT_TIMEOUT_SEC * 1000.0)
+	connection_started.emit(address, port)
+	print("[NetManager] Menghubungi %s ... (transport: websocket)" % url)
 
 
 ## Memutus koneksi saat ini dan kembali offline.
@@ -88,6 +120,7 @@ func disconnect_from_server() -> void:
 		multiplayer.multiplayer_peer.close()
 	multiplayer.multiplayer_peer = null
 	_peer = null
+	transport_mode = "enet"
 	_connecting = false
 	connection_state = "idle"
 	_local_state.clear()

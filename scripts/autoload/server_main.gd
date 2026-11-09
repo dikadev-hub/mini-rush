@@ -37,9 +37,9 @@ func _ready() -> void:
 	get_tree().auto_accept_quit = false
 	get_tree().set_auto_accept_quit(false)
 	_wire_net_events()
-	_start_enet_server()
-	Log.info("ServerMain siap: port=%d max_rooms=%d max_players=%d max_clients=%d timeout=%.0fs" % [
-		_gc().get("server_port"), max_rooms, max_players, _max_clients(), match_timeout_sec])
+	_start_transport_server()
+	Log.info("ServerMain siap: transport=%s port=%d max_rooms=%d max_players=%d max_clients=%d timeout=%.0fs" % [
+		str(_gc().get("transport")), _gc().get("server_port"), max_rooms, max_players, _max_clients(), match_timeout_sec])
 
 
 ## Wire NetManager event ke handler (kontrak 4.5). Dipanggil di _ready.
@@ -115,6 +115,29 @@ func _start_enet_server() -> void:
 	multiplayer.multiplayer_peer = peer
 	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
 	Log.info("server ENet aktif di UDP %d (max_clients=%d)" % [_gc().get("server_port"), _max_clients()])
+
+
+## Memulai server dengan transport sesuai GameConfig.transport ("enet" | "ws").
+func _start_transport_server() -> void:
+	if str(_gc().get("transport")) == "ws":
+		_start_ws_server()
+	else:
+		_start_enet_server()
+
+
+## WebSocket server: TCP, untuk VPS/publik yang memblokir UDP inbound.
+## Client connect via NetManager.connect_to_server_ws().
+func _start_ws_server() -> void:
+	var peer := WebSocketMultiplayerPeer.new()
+	var err: Error = peer.create_server(_gc().get("server_port"))
+	if err != OK:
+		Log.error("gagal membuat server WebSocket di port %d (error %d)" % [_gc().get("server_port"), err])
+		get_tree().quit(1)
+		return
+	multiplayer.multiplayer_peer = peer
+	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
+	Log.info("transport: websocket — server WS aktif di TCP %d (max_clients=%d)" % [
+		_gc().get("server_port"), _max_clients()])
 
 
 func _process(delta: float) -> void:

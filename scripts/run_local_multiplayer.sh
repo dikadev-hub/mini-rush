@@ -10,6 +10,14 @@ case "$N_CLIENTS" in
     *) echo "Usage: $0 [2|3|4]" >&2; exit 2;;
 esac
 
+# TRANSPORT=enet|ws (default enet). ws = WebSocket/TCP (untuk server publik blokir UDP).
+TRANSPORT="${TRANSPORT:-enet}"
+case "$TRANSPORT" in
+    enet) TRANSPORT_FLAG="";;
+    ws) TRANSPORT_FLAG="--transport=ws";;
+    *) echo "Usage: TRANSPORT=enet|ws" >&2; exit 2;;
+esac
+
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 GODOT_BIN="${GODOT_BIN:-$HOME/godot/Godot_v4.3-stable_linux.x86_64}"
 SCENARIO="${SCENARIO:-join_room}"
@@ -17,11 +25,11 @@ PORT="${PORT:-7777}"
 REPORT_DIR="$PROJECT_DIR/tests/reports/multiplayer/$(date +%Y%m%d_%H%M%S)"
 mkdir -p "$REPORT_DIR"
 
-echo "=== Mini Rush — run_local_multiplayer ($N_CLIENTS client, skenario $SCENARIO, port $PORT) ==="
+echo "=== Mini Rush — run_local_multiplayer ($N_CLIENTS client, skenario $SCENARIO, port $PORT, transport $TRANSPORT) ==="
 echo "Log dir: $REPORT_DIR"
 
 # 1. Server headless
-"$GODOT_BIN" --headless --path "$PROJECT_DIR" -- --server --port="$PORT" \
+"$GODOT_BIN" --headless --path "$PROJECT_DIR" -- --server --port="$PORT" $TRANSPORT_FLAG \
     > "$REPORT_DIR/server.log" 2>&1 &
 SERVER_PID=$!
 echo "[INFO] Server PID $SERVER_PID"
@@ -36,7 +44,7 @@ fi
 # 2. Client 1 dulu (host) — ambil kode room dari log, lalu client sisanya join.
 ROOM_CODE=""
 xvfb-run -a "$GODOT_BIN" --path "$PROJECT_DIR" -- \
-    --auto-test="$SCENARIO" --auto-test-index=1 --address=127.0.0.1 --port="$PORT" \
+    --auto-test="$SCENARIO" --auto-test-index=1 --address=127.0.0.1 --port="$PORT" $TRANSPORT_FLAG \
     > "$REPORT_DIR/client_1.log" 2>&1 &
 CLIENT_PIDS=($!)
 echo "[INFO] Client 1 PID ${CLIENT_PIDS[-1]}"
@@ -56,7 +64,7 @@ echo "[INFO] Room code: $ROOM_CODE"
 
 for i in $(seq 2 "$N_CLIENTS"); do
     xvfb-run -a "$GODOT_BIN" --path "$PROJECT_DIR" -- \
-        --auto-test="$SCENARIO" --auto-test-index="$i" --room-code="$ROOM_CODE" --address=127.0.0.1 --port="$PORT" \
+        --auto-test="$SCENARIO" --auto-test-index="$i" --room-code="$ROOM_CODE" --address=127.0.0.1 --port="$PORT" $TRANSPORT_FLAG \
         > "$REPORT_DIR/client_$i.log" 2>&1 &
     CLIENT_PIDS+=($!)
     echo "[INFO] Client $i PID ${CLIENT_PIDS[-1]}"

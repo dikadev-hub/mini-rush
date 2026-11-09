@@ -9,6 +9,7 @@ const NICKNAME_MAX_LEN: int = 16
 var _status_label: Label
 var _nickname_input: LineEdit
 var _room_code_input: LineEdit
+var _ws_checkbox: CheckBox
 var _player_list: ItemList
 var _btn_create: Button
 var _btn_join: Button
@@ -92,6 +93,17 @@ func _build_ui() -> void:
 	_nickname_input.custom_minimum_size = Vector2(220, 44)
 	_nickname_input.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	nick_row.add_child(_nickname_input)
+
+	# Transport WebSocket: untuk server publik yang memblokir UDP (ENet tidak jalan).
+	# Default tidak dicentang (ENet); dicentang -> connect_to_server_ws().
+	_ws_checkbox = CheckBox.new()
+	_ws_checkbox.name = "WsCheckbox"
+	_ws_checkbox.text = "pakai websocket (untuk server publik)"
+	_ws_checkbox.add_theme_font_size_override("font_size", 18)
+	# Default WS: endpoint publik ws://servergame.new.tg:3450 (VPS blokir UDP).
+	# Local test: --address=127.0.0.1 --port=... (dan TRANSPORT=enet untuk ENet).
+	_ws_checkbox.button_pressed = GameConfig.transport == "ws"
+	left.add_child(_ws_checkbox)
 
 	_btn_create = _make_button("Buat Room", left)
 	_btn_join = _make_button("Gabung Room", left)
@@ -191,8 +203,11 @@ func _ensure_connection() -> bool:
 		return true
 	var address: String = GameConfig.server_address
 	var port: int = GameConfig.server_port
-	_set_status("Menghubungi %s:%d ..." % [address, port])
-	NetManager.connect_to_server(address, port)
+	_set_status("Menghubungi %s:%d ... (%s)" % [address, port, "ws" if _ws_checkbox.button_pressed else "enet"])
+	if _ws_checkbox.button_pressed:
+		NetManager.connect_to_server_ws(address, port)
+	else:
+		NetManager.connect_to_server(address, port)
 	return false
 
 

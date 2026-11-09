@@ -31,7 +31,10 @@ func _ready() -> void:
 	NetManager.match_started.connect(_on_match_started)
 	NetManager.remote_states_updated.connect(_on_remote_states)
 	NetManager.match_results_received.connect(_on_results)
-	NetManager.connect_to_server(GameConfig.server_address, GameConfig.server_port)
+	if GameConfig.transport == "ws":
+		NetManager.connect_to_server_ws(GameConfig.server_address, GameConfig.server_port)
+	else:
+		NetManager.connect_to_server(GameConfig.server_address, GameConfig.server_port)
 
 func _on_connection_failed(_reason: String) -> void:
 	printerr("[AUTOTEST] FAIL koneksi: " + _reason)

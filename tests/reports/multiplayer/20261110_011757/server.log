@@ -1,0 +1,35 @@
+Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
+
+WARNING: SettingsManager: bus audio tidak ditemukan: Music
+     at: push_warning (core/variant/variant_utility.cpp:1112)
+WARNING: SettingsManager: bus audio tidak ditemukan: SFX
+     at: push_warning (core/variant/variant_utility.cpp:1112)
+[2026-11-09 17:17:57.182] [info] argumen CLI: port=7777 max_rooms=50 max_players=8 log_level=info match_timeout=600
+[2026-11-09 17:17:57.183] [info] transport: websocket — server WS aktif di TCP 7777 (max_clients=400)
+[2026-11-09 17:17:57.183] [info] ServerMain siap: transport=ws port=7777 max_rooms=50 max_players=8 max_clients=400 timeout=600s
+[2026-11-09 17:18:00.537] [info] room JKHKEH dibuat oleh peer 1640464560 (nickname='Tester1')
+[2026-11-09 17:18:01.839] [info] peer 1527006155 join room JKHKEH (nickname='Tester2')
+[SERVERDBG] state ditolak: room=<RefCounted#-9223372000129448497> state_running=false
+[SERVERDBG] state ditolak: room=<RefCounted#-9223372000129448497> state_running=false
+[SERVERDBG] state ditolak: room=<RefCounted#-9223372000129448497> state_running=false
+[SERVERDBG] state ditolak: room=<RefCounted#-9223372000129448497> state_running=false
+[SERVERDBG] state ditolak: room=<RefCounted#-9223372000129448497> state_running=false
+[SERVERDBG] state ditolak: room=<RefCounted#-9223372000129448497> state_running=false
+[SERVERDBG] state ditolak: room=<RefCounted#-9223372000129448497> state_running=false
+[SERVERDBG] state ditolak: room=<RefCounted#-9223372000129448497> state_running=false
+[SERVERDBG] state ditolak: room=<RefCounted#-9223372000129448497> state_running=false
+[SERVERDBG] state ditolak: room=<RefCounted#-9223372000129448497> state_running=false
+[2026-11-09 17:18:06.954] [info] room JKHKEH: race dimulai (timeout 600s)
+[2026-11-09 17:18:06.954] [info] room JKHKEH: rpc_match_started dikirim ke 2 peer
+[2026-11-09 17:18:07.121] [info] health: rooms=1 players=2 uptime=9s
+[2026-11-09 17:18:17.120] [info] health: rooms=1 players=2 uptime=19s
+[2026-11-09 17:18:27.119] [info] health: rooms=1 players=2 uptime=29s
+[2026-11-09 17:18:37.137] [info] health: rooms=1 players=2 uptime=39s
+[2026-11-09 17:18:47.154] [info] health: rooms=1 players=2 uptime=49s
+[2026-11-09 17:18:57.170] [info] health: rooms=1 players=2 uptime=59s
+[2026-11-09 17:19:07.184] [info] health: rooms=1 players=2 uptime=70s
+[2026-11-09 17:19:17.200] [info] health: rooms=1 players=2 uptime=80s
+[2026-11-09 17:19:27.217] [info] health: rooms=1 players=2 uptime=90s
+[2026-11-09 17:19:37.234] [info] health: rooms=1 players=2 uptime=100s
+[2026-11-09 17:19:47.251] [info] health: rooms=1 players=2 uptime=110s
+[2026-11-09 17:19:57.268] [info] health: rooms=1 players=2 uptime=120s
