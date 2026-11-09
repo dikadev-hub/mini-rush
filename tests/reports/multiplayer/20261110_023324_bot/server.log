@@ -1,0 +1,28 @@
+Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
+
+WARNING: SettingsManager: bus audio tidak ditemukan: Music
+     at: push_warning (core/variant/variant_utility.cpp:1112)
+WARNING: SettingsManager: bus audio tidak ditemukan: SFX
+     at: push_warning (core/variant/variant_utility.cpp:1112)
+[2026-11-09 18:33:26.324] [info] argumen CLI: port=27751 max_rooms=50 max_players=8 log_level=info match_timeout=600
+[2026-11-09 18:33:26.334] [info] transport: websocket — server WS aktif di TCP 27751 (max_clients=400)
+[2026-11-09 18:33:26.334] [info] ServerMain siap: transport=ws port=27751 max_rooms=50 max_players=8 max_clients=400 timeout=600s
+[2026-11-09 18:33:32.291] [info] room DK7MQA dibuat oleh peer 114657633 (nickname='Tester1')
+[2026-11-09 18:33:33.558] [info] room DK7MQA: bot ditambahkan (nickname='Bot 1' peer_id=-1 speed=5.7 m/s)
+[2026-11-09 18:33:37.376] [info] health: rooms=1 players=2 uptime=10s
+[2026-11-09 18:33:38.759] [info] room DK7MQA: race dimulai (timeout 600s)
+[2026-11-09 18:33:38.759] [info] room DK7MQA: rpc_match_started dikirim ke 2 peer
+[2026-11-09 18:33:39.446] [info] room DK7MQA: peer -1 checkpoint 0 diterima
+[2026-11-09 18:33:39.291] [info] room DK7MQA: peer -1 checkpoint 1 diterima
+[2026-11-09 18:33:40.175] [info] room DK7MQA: peer -1 checkpoint 2 diterima
+[2026-11-09 18:33:41.093] [info] room DK7MQA: peer -1 checkpoint 3 diterima
+[2026-11-09 18:33:42.982] [info] room DK7MQA: peer -1 finish dalam 4223 ms (winner=true)
+[2026-11-09 18:33:47.397] [info] health: rooms=1 players=2 uptime=20s
+[2026-11-09 18:33:57.409] [info] health: rooms=1 players=2 uptime=30s
+[2026-11-09 18:34:07.415] [info] health: rooms=1 players=2 uptime=40s
+[2026-11-09 18:34:17.412] [info] health: rooms=1 players=2 uptime=50s
+[2026-11-09 18:34:27.431] [info] health: rooms=1 players=2 uptime=60s
+[2026-11-09 18:34:37.435] [info] health: rooms=1 players=2 uptime=70s
+[2026-11-09 18:34:47.433] [info] health: rooms=1 players=2 uptime=80s
+[2026-11-09 18:34:57.448] [info] health: rooms=1 players=2 uptime=90s
+[2026-11-09 18:35:07.448] [info] health: rooms=1 players=2 uptime=100s

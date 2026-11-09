@@ -1,0 +1,28 @@
+Godot Engine v4.3.stable.official.77dcf97d8 - https://godotengine.org
+
+WARNING: SettingsManager: bus audio tidak ditemukan: Music
+     at: push_warning (core/variant/variant_utility.cpp:1112)
+WARNING: SettingsManager: bus audio tidak ditemukan: SFX
+     at: push_warning (core/variant/variant_utility.cpp:1112)
+[2026-11-09 18:26:18.788] [info] argumen CLI: port=27751 max_rooms=50 max_players=8 log_level=info match_timeout=600
+[2026-11-09 18:26:18.802] [info] transport: websocket — server WS aktif di TCP 27751 (max_clients=400)
+[2026-11-09 18:26:18.802] [info] ServerMain siap: transport=ws port=27751 max_rooms=50 max_players=8 max_clients=400 timeout=600s
+[2026-11-09 18:26:23.611] [info] room PDD7BR dibuat oleh peer 387468074 (nickname='Tester1')
+[2026-11-09 18:26:23.842] [info] room PDD7BR: bot ditambahkan (nickname='Bot 1' peer_id=-1 speed=5.6 m/s)
+[2026-11-09 18:26:28.796] [info] health: rooms=1 players=2 uptime=9s
+[2026-11-09 18:26:28.011] [info] room PDD7BR: race dimulai (timeout 600s)
+[2026-11-09 18:26:28.011] [info] room PDD7BR: rpc_match_started dikirim ke 2 peer
+[2026-11-09 18:26:29.693] [info] room PDD7BR: peer -1 checkpoint 0 diterima
+[2026-11-09 18:26:29.548] [info] room PDD7BR: peer -1 checkpoint 1 diterima
+[2026-11-09 18:26:30.427] [info] room PDD7BR: peer -1 checkpoint 2 diterima
+[2026-11-09 18:26:31.352] [info] room PDD7BR: peer -1 checkpoint 3 diterima
+[2026-11-09 18:26:32.228] [info] room PDD7BR: peer -1 finish dalam 4217 ms (winner=true)
+[2026-11-09 18:26:38.811] [info] health: rooms=1 players=2 uptime=20s
+[2026-11-09 18:26:48.812] [info] health: rooms=1 players=2 uptime=30s
+[2026-11-09 18:26:58.798] [info] health: rooms=1 players=2 uptime=39s
+[2026-11-09 18:27:08.796] [info] health: rooms=1 players=2 uptime=49s
+[2026-11-09 18:27:18.796] [info] health: rooms=1 players=2 uptime=59s
+[2026-11-09 18:27:28.814] [info] health: rooms=1 players=2 uptime=70s
+[2026-11-09 18:27:38.812] [info] health: rooms=1 players=2 uptime=80s
+[2026-11-09 18:27:48.811] [info] health: rooms=1 players=2 uptime=90s
+[2026-11-09 18:27:58.815] [info] health: rooms=1 players=2 uptime=100s
