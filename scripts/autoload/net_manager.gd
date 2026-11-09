@@ -96,7 +96,7 @@ func connect_to_server(address: String, port: int) -> void:
 func connect_to_server_ws(address: String, port: int) -> void:
 	if _connecting or (connection_state == "connected"):
 		return
-	var url: String = "ws://%s:%d" % [address, port]
+	var url: String = address if ("://" in address) else "ws://%s:%d" % [address, port]
 	_peer = WebSocketMultiplayerPeer.new()
 	var err: Error = _peer.create_client(url)
 	if err != OK:

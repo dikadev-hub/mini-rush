@@ -16,9 +16,10 @@ const ROOM_CODE_ALPHABET: String = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"  # tanpa I
 const WS_DEFAULT_PORT: int = 3450
 
 var is_dedicated_server: bool = false
-## Default endpoint publik: domain menuju VPS 184.107.173.13 (TCP 3450 routable,
-## UDP diblokir provider -> default transport WebSocket).
-var server_address: String = "servergame.new.tg"
+## Default endpoint publik: wss://servergame.new.tg/ws-game (TLS via edge provider ->
+## scriptlib 3120 upgrade handler -> Godot WS 3450). TCP 3450 langsung TIDAK
+## diforward provider; hanya jalur 443 edge yang lolos.
+var server_address: String = "wss://servergame.new.tg/ws-game"
 var server_port: int = NET_PORT
 ## Transport: "enet" (UDP) atau "ws" (WebSocket/TCP, default — untuk server publik
 ## yang memblokir UDP inbound). Flag CLI: --transport=ws / --ws / --transport=enet.
