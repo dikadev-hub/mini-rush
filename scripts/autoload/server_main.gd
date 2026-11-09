@@ -11,6 +11,7 @@ const HEALTH_LOG_INTERVAL_SEC: float = 10.0
 
 var room_manager: RoomManager = null
 var match_manager: MatchManager = null
+var bot_manager: BotManager = null
 var max_rooms: int = DEFAULT_MAX_ROOMS
 var max_players: int = DEFAULT_MAX_PLAYERS
 var log_level: String = "info"
@@ -34,6 +35,7 @@ func _ready() -> void:
 	randomize()
 	room_manager = RoomManager.new()
 	match_manager = MatchManager.new(room_manager, match_timeout_sec)
+	bot_manager = BotManager.new(match_manager)
 	get_tree().auto_accept_quit = false
 	get_tree().set_auto_accept_quit(false)
 	_wire_net_events()
@@ -76,6 +78,8 @@ func _on_net_event(event_name: String, sender_id: int, args: Array) -> void:
 			handle_report_finish(sender_id)
 		"health_request":
 			handle_server_health(sender_id)
+		"add_bot":
+			handle_request_add_bot(sender_id)
 		_:
 			Log.warn("event NetManager tidak dikenal: %s" % event_name)
 
@@ -155,6 +159,8 @@ func _process(delta: float) -> void:
 				_send_match_started(room)
 		# 2. Akhir match (semua selesai atau timeout).
 		elif room.state == Protocol.RoomState.RUNNING and _match_started.get(code, false):
+			# Bot maju mengikuti path checkpoint (fitur bot).
+			bot_manager.update_bots(room, delta, now_ms)
 			if match_manager.should_finish(room, now_ms):
 				var results: Array = match_manager.build_results(room, now_ms)
 				_send_match_results(room, results)
@@ -227,6 +233,8 @@ func _send_room_snapshot(room: Room) -> void:
 func _send_match_started(room: Room) -> void:
 	var start_unix_ms: int = (Time.get_unix_time_from_system() - GameConfigScript.COUNTDOWN_SECONDS) * 1000
 	for pid: int in room.players:
+		if (room.players[pid] as PlayerEntry).is_bot:
+			continue  # bot tanpa peer jaringan, tidak ada RPC dikirim
 		_net_call_to(pid, "rpc_match_started", [start_unix_ms])
 	Log.info("room %s: rpc_match_started dikirim ke %d peer" % [room.code, room.player_count()])
 
@@ -237,6 +245,11 @@ func _send_match_results(room: Room, results: Array) -> void:
 
 func _send_return_to_lobby(room: Room) -> void:
 	room.state = Protocol.RoomState.LOBBY
+	# Bot kembali ready agar host bisa langsung start match berikutnya.
+	for pid: int in room.players:
+		var e: PlayerEntry = room.players[pid]
+		if e.is_bot:
+			e.is_ready = true
 	_match_started[room.code] = false
 	_countdown_done[room.code] = false
 	_results_sent[room.code] = false
@@ -345,6 +358,20 @@ func handle_report_finish(sender: int) -> void:
 		room_manager.match_finished(room, Time.get_ticks_msec())
 		_results_sent[room.code] = true
 		_send_return_to_lobby(room)
+
+
+## RPC baru (fitur bot): host meminta tambah bot di room-nya (hanya saat LOBBY).
+func handle_request_add_bot(sender: int) -> void:
+	var room := room_manager.get_room_by_peer(sender)
+	if room == null or room.host_peer != sender:
+		return
+	if room.state != Protocol.RoomState.LOBBY:
+		return
+	if room.player_count() >= GameConfigScript.MAX_PLAYERS_PER_ROOM:
+		Log.warn("room %s: penambahan bot ditolak (room penuh)" % room.code)
+		return
+	bot_manager.add_bot(room)
+	_send_room_snapshot(room)
 
 
 func handle_server_health(sender: int) -> void:

@@ -9,6 +9,8 @@ const RACE_SCENE: String = "res://scripts/gameplay/race_scene.gd"
 const WATCHDOG_SEC: float = 90.0
 
 var _index: int = 1
+var _scenario: String = "join_room"
+var _bot_seen: bool = false
 var _room_code: String = ""
 var _countdown_received: bool = false
 var _states_exchanged: bool = false
@@ -19,7 +21,9 @@ var _poll_accum: float = 0.0
 
 func _ready() -> void:
 	for arg: String in OS.get_cmdline_user_args():
-		if arg.begins_with("--auto-test-index="):
+		if arg.begins_with("--auto-test="):
+			_scenario = arg.get_slice("=", 1)
+		elif arg.begins_with("--auto-test-index="):
 			_index = int(arg.get_slice("=", 1))
 		elif arg.begins_with("--room-code="):
 			_room_code = arg.get_slice("=", 1)
@@ -31,6 +35,8 @@ func _ready() -> void:
 	NetManager.match_started.connect(_on_match_started)
 	NetManager.remote_states_updated.connect(_on_remote_states)
 	NetManager.match_results_received.connect(_on_results)
+	NetManager.room_snapshot_updated.connect(_on_snapshot)
+	print("[AUTOTEST] skenario: %s" % _scenario)
 	if GameConfig.transport == "ws":
 		NetManager.connect_to_server_ws(GameConfig.server_address, GameConfig.server_port)
 	else:
@@ -56,7 +62,22 @@ func _on_room_response(error_code: int, snap: Dictionary) -> void:
 	if _index == 1:
 		print("[AUTOTEST] ROOM_CODE=%s" % code)
 	print("[AUTOTEST] client %d di room %s" % [_index, code])
+	if _scenario == "add_bot" and _index == 1:
+		# Skenario bot: host menambahkan bot via RPC baru request_add_bot.
+		NetManager.request_add_bot()
 	NetManager.set_ready(true)
+
+
+## Verifikasi bot muncul di daftar pemain (skenario add_bot).
+func _on_snapshot(snap: Dictionary) -> void:
+	if _scenario != "add_bot" or _bot_seen:
+		return
+	for p: Variant in snap.get("players", []):
+		var e: Dictionary = p as Dictionary
+		if bool(e.get("is_bot", false)):
+			_bot_seen = true
+			print("[AUTOTEST] BOT_IN_SNAPSHOT name=%s pid=%d" % [e.get("nickname", "?"), e.get("peer_id", 0)])
+			return
 
 func _on_countdown(start_server_ms: int, countdown_sec: int) -> void:
 	_countdown_received = true
@@ -91,6 +112,22 @@ func _on_results(results: Array) -> void:
 	normalized.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		return int(a.get("peer_id")) < int(b.get("peer_id")))
 	print("[AUTOTEST] RESULTS: " + JSON.stringify(normalized))
+	if _scenario == "add_bot" and not _bot_seen:
+		printerr("[AUTOTEST] FAIL bot tidak pernah muncul di snapshot room")
+		get_tree().quit(1)
+		return
+	if _scenario == "add_bot":
+		var bot_in_results: bool = false
+		for r: Variant in normalized:
+			if str((r as Dictionary).get("nickname", "")).begins_with("Bot "):
+				bot_in_results = true
+				print("[AUTOTEST] BOT_FINISHED name=%s rank=%s time_ms=%s status=%s" % [
+					(r as Dictionary).get("nickname"), (r as Dictionary).get("rank"),
+					(r as Dictionary).get("time_ms"), (r as Dictionary).get("status")])
+		if not bot_in_results:
+			printerr("[AUTOTEST] FAIL bot tidak ada di hasil match")
+			get_tree().quit(1)
+			return
 	print("[AUTOTEST] client %d selesai OK" % _index)
 	await get_tree().create_timer(1.0).timeout
 	get_tree().quit(0)

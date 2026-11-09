@@ -207,6 +207,11 @@ func request_server_health() -> void:
 	rpc_id(1, "rpc_server_health")
 
 
+## RPC baru (fitur bot): host meminta server menambah bot ke room-nya.
+func request_add_bot() -> void:
+	rpc_id(1, "rpc_request_add_bot")
+
+
 # ------------------------------------------------------------------
 # RPC deklarasi (kontrak 4.5, tidak boleh diubah)
 # ------------------------------------------------------------------
@@ -311,6 +316,14 @@ func rpc_match_results(results: Array) -> void:
 func rpc_return_to_lobby(room_snapshot: Dictionary) -> void:
 	last_room_snapshot = room_snapshot
 	returned_to_lobby.emit(room_snapshot)
+
+
+@rpc("any_peer", "reliable")
+func rpc_request_add_bot() -> void:
+	# RPC baru (fitur bot): hanya dieksekusi di server, diteruskan ke ServerMain.
+	if not multiplayer.is_server():
+		return
+	_server_handle_add_bot()
 
 
 @rpc("any_peer", "reliable")
@@ -506,6 +519,10 @@ func _server_handle_finish() -> void:
 
 func _server_handle_health() -> void:
 	_server_emit("health_request", [])
+
+
+func _server_handle_add_bot() -> void:
+	_server_emit("add_bot", [])
 
 
 # ------------------------------------------------------------------

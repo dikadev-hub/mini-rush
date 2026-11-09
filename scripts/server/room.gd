@@ -12,6 +12,7 @@ var empty_since_ms: int = -1
 var race_start_server_ms: int = 0
 var countdown_start_server_ms: int = 0
 var next_join_order: int = 0
+var next_bot_peer_id: int = -1  # peer_id bot: negatif agar tidak tabrakan peer asli
 
 
 static func create(p_code: String, host: PlayerEntry, now_ms: int) -> Room:
@@ -54,11 +55,12 @@ func all_finished_or_dnf() -> bool:
 
 
 func oldest_active_peer() -> int:
+	# Bot tidak bisa menjadi host (tidak punya koneksi jaringan).
 	var best_peer: int = 0
 	var best_order: int = 2147483647
 	for pid: int in players:
 		var e: PlayerEntry = players[pid]
-		if e.join_order < best_order:
+		if not e.is_bot and e.join_order < best_order:
 			best_order = e.join_order
 			best_peer = pid
 	return best_peer

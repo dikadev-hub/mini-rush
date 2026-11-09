@@ -16,6 +16,7 @@ var _btn_join: Button
 var _btn_leave: Button
 var _btn_ready: Button
 var _btn_start: Button
+var _btn_add_bot: Button
 var _in_room: bool = false
 var _is_host: bool = false
 var _is_ready: bool = false
@@ -126,6 +127,7 @@ func _build_ui() -> void:
 	_btn_leave = _make_button("Keluar Room", left)
 	_btn_ready = _make_button("Ready", left)
 	_btn_start = _make_button("Mulai (Host)", left)
+	_btn_add_bot = _make_button("Tambah Bot (Host)", left)
 
 	# Kolom kanan: daftar pemain
 	var right := VBoxContainer.new()
@@ -164,6 +166,7 @@ func _connect_signals() -> void:
 	_btn_leave.pressed.connect(_on_leave_pressed)
 	_btn_ready.pressed.connect(_on_ready_pressed)
 	_btn_start.pressed.connect(_on_start_pressed)
+	_btn_add_bot.pressed.connect(_on_add_bot_pressed)
 
 
 # ------------------------------------------------------------------
@@ -250,6 +253,18 @@ func _on_ready_pressed() -> void:
 	_is_ready = not _is_ready
 	NetManager.set_ready(_is_ready)
 	_btn_ready.text = "Batal Ready" if _is_ready else "Ready"
+
+
+## RPC baru (fitur bot): host menambah bot ke room.
+func _on_add_bot_pressed() -> void:
+	if not _in_room:
+		_set_status("Belum berada di room.")
+		return
+	if not _is_host:
+		_set_status("Hanya host yang bisa menambah bot.")
+		return
+	NetManager.request_add_bot()
+	_set_status("Menambahkan bot ...")
 
 
 func _on_start_pressed() -> void:
@@ -343,10 +358,12 @@ func _apply_snapshot(room_snapshot: Dictionary) -> void:
 				var nick: String = str(entry.get("nickname", "?"))
 				var ready_mark: String = " [READY]" if bool(entry.get("is_ready", false)) else ""
 				var host_mark: String = " [HOST]" if pid == int(host_peer) else ""
-				_player_list.add_item("%s (id %d)%s%s" % [nick, pid, host_mark, ready_mark])
+				var bot_mark: String = " [BOT]" if bool(entry.get("is_bot", false)) else ""
+				_player_list.add_item("%s (id %d)%s%s%s" % [nick, pid, host_mark, ready_mark, bot_mark])
 				if pid == my_id:
 					_is_host = pid == int(host_peer)
 	_btn_start.visible = _is_host
+	_btn_add_bot.visible = _is_host
 	_btn_ready.disabled = false
 
 
@@ -355,6 +372,7 @@ func _set_room_visible(visible_in_room: bool) -> void:
 	_btn_leave.disabled = not visible_in_room
 	_btn_ready.disabled = not visible_in_room
 	_btn_start.disabled = not visible_in_room
+	_btn_add_bot.disabled = not visible_in_room
 	_btn_create.disabled = visible_in_room
 	_btn_join.disabled = visible_in_room
 	if not visible_in_room:

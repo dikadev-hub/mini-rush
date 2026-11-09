@@ -17,6 +17,8 @@ var join_order: int = 0
 var player_token: String = ""
 var speed_violations: Array[int] = []  # timestamp ms pelanggaran kecepatan
 var disconnected_at_ms: int = -1
+var is_bot: bool = false               # bot server-side (tanpa peer jaringan)
+var bot_speed_mps: float = 6.0         # kecepatan bot (variasi per bot)
 
 
 static func from_values(p_peer_id: int, p_nickname: String, p_character_id: int,
@@ -40,6 +42,7 @@ func to_dict() -> Dictionary:
 		"next_checkpoint": next_checkpoint,
 		"finish_time_ms": finish_time_ms,
 		"join_order": join_order,
+		"is_bot": is_bot,
 	}
 
 

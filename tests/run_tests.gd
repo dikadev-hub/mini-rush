@@ -47,6 +47,9 @@ func _run_all() -> void:
 	var map_data := _try_load("res://tests/unit/test_map_data.gd")
 	if map_data != null:
 		map_data.new().run(self)
+	var bot := _try_load("res://tests/unit/test_bot.gd")
+	if bot != null:
+		bot.new().run(self)
 	var a8 := _try_load("res://tests/unit/test_a8_managers.gd")
 	if a8 != null:
 		a8.new().run(self)
